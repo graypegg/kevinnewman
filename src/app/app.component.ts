@@ -1,6 +1,6 @@
 import { DataService } from './services/services.data';
-import { Component, ViewEncapsulation, HostListener, Inject, OnInit } from '@angular/core';
-import { DOCUMENT } from '@angular/platform-browser';
+import { Component, ViewEncapsulation, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {Router, NavigationEnd} from '@angular/router';
 
 import { routerTransition } from './router.animations';
@@ -23,11 +23,14 @@ declare let ga: Function;
 export class AppComponent implements OnInit {
 
     public position: string;
+    isBrowser : boolean;
     readonly maxNavScrollHeight: number = 260;
 
     constructor(public dataService: DataService,
-                @Inject(DOCUMENT) private document: Document,
+                @Inject(PLATFORM_ID) private platformId: Object,
+                @Inject(DOCUMENT) private document: any,
                 public router: Router) {
+        this.isBrowser = isPlatformBrowser(platformId);
         this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 ga('set', 'page', event.urlAfterRedirects);
@@ -48,7 +51,9 @@ export class AppComponent implements OnInit {
 
     changeOfRoutes () {
         if (this.document.scrollingElement.scrollTop > 350) {
-            window.scrollTo(0, 330);
+            if(this.isBrowser){
+                window.scrollTo(0, 330);
+            }
         }
     }
 

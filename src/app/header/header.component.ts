@@ -1,13 +1,11 @@
 import { SocialMediaLinksComponent } from './../social-media-links/social-media-links.component';
 import { DataService } from './../services/services.data';
-import { Component, OnInit, ViewChild, ElementRef, NgZone, HostListener, Inject, ViewEncapsulation } from '@angular/core';
-import { DOCUMENT } from '@angular/platform-browser';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, HostListener, Inject, ViewEncapsulation, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 
 // canvas dimensions
-let width = window.innerWidth;
 const height = 500;
-// const height = 500;
 
 export class Star {
   public modifer;
@@ -17,10 +15,12 @@ export class Star {
   public vy: any;
   public radius: any;
   public color: String;
+  public width: number;
 
-  constructor(modifer?: any, posX?: number, posY?: number) {
+  constructor(modifer?: any, posX?: number, posY?: number, width?: number) {
+    this.width = width;
     this.modifer = Math.random() * 2;
-    this.x = posX ? posX : width * Math.random();
+    this.x = posX ? posX : this.width * Math.random();
     this.y = posY ? posY : height * Math.random();
     this.vx = modifer ? this.modifer * modifer : this.modifer * this.modifer;
     this.vy = modifer ? this.modifer * modifer : this.modifer * this.modifer;
@@ -48,7 +48,7 @@ export class Star {
     this.x += this.vx;
     this.y -= this.vy;
 
-    if (this.x > width) {
+    if (this.x > this.width) {
       this.x = -50;
     }
 
@@ -66,10 +66,12 @@ export class Line {
   public vy: any;
   public stroke: any;
   public color: String;
+  public width: number;
 
-  constructor() {
+  constructor(width: number) {
+    this.width = width;
     this.modifer = Math.random() * 2;
-    this.x = width * Math.random();
+    this.x = this.width * Math.random();
     this.y = height * Math.random();
     this.vx = this.modifer * this.modifer + 0.3;
     this.vy = this.modifer * this.modifer + 0.3;
@@ -90,7 +92,7 @@ export class Line {
     this.x += this.vx;
     this.y -= this.vy;
 
-    if (this.x > width) {
+    if (this.x > this.width) {
       this.x = -50;
     }
 
@@ -115,6 +117,7 @@ export class HeaderComponent implements OnInit {
   public ctx: CanvasRenderingContext2D;
   public canvas;
   private running: boolean;
+  public width: number;
   openedBool: boolean = false;
   isActive: boolean = false;
 
@@ -125,11 +128,12 @@ export class HeaderComponent implements OnInit {
 
   // Lines
   private maxLines = 35;
-  private lines = [];
+  private lines = []; 
 
   constructor(public ngZone: NgZone,
     public dataService: DataService,
-    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platform: any,
+    @Inject(DOCUMENT) private document: any,
     private router: Router) {
     this.router.events.subscribe(event => {
       this.openedBool = false;
@@ -137,23 +141,29 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (isPlatformBrowser(this.platform)) {
+      this.width = window.innerWidth;
+    } else {
+      this.width = 4000
+    }
+
     this.ctx = this.canvasRef.nativeElement.getContext('2d');
     this.canvas = this.ctx.canvas;
-    this.canvas.width = width;
+    this.canvas.width = window.innerWidth;
 
     // Stars
     for (let i = 0; i < this.maxParticles; i++) {
-      this.particles.push(new Star());
+      this.particles.push(new Star(null, null, null, this.width));
     }
 
     // Shooting stars
     for (let i = 0; i < this.maxLines; i++) {
-      this.lines.push(new Line());
+      this.lines.push(new Line(this.width));
     }
 
     // Background stars
     for (let i = 0; i < this.maxParticles; i++) {
-      this.backgroundParticles.push(new Star(1));
+      this.backgroundParticles.push(new Star(1, null, null, this.width));
     }
 
     this.running = true;
@@ -185,13 +195,13 @@ export class HeaderComponent implements OnInit {
     }
 
     this.maxLines++;
-    this.lines.push(new Star(null, event.clientX, event.clientY));
+    this.lines.push(new Star(null, event.clientX, event.clientY, this.width));
   }
 
   @HostListener('window:resize', [])
   resize() {
     this.canvas.width = window.innerWidth;
-    width = window.innerWidth;
+    this.width = window.innerWidth;
   }
 
   OnDestroy() {
@@ -203,7 +213,7 @@ export class HeaderComponent implements OnInit {
       return;
     }
 
-    this.ctx.clearRect(0, 0, width, height);
+    this.ctx.clearRect(0, 0, this.width, height);
 
     for (let i = 0; i < this.maxLines; i++) {
       this.lines[i].update();

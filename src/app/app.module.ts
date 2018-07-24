@@ -25,6 +25,8 @@ import { TruncatePipe } from './pipes/truncate';
 import { SwiperModule } from 'angular2-useful-swiper';
 import { LazyLoadImagesModule } from 'ngx-lazy-load-images';
 
+import {TransferHttpCacheModule} from '@nguniversal/common';
+
 @NgModule({
   declarations: [
     HomeComponent,
@@ -41,17 +43,17 @@ import { LazyLoadImagesModule } from 'ngx-lazy-load-images';
   ],
   imports: [
     HttpClientModule,
-    BrowserModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
     RouterModule.forRoot(routes),
     BrowserAnimationsModule,
     FormsModule,
     CustomFormsModule,
     ReactiveFormsModule,
     SwiperModule,
-    LazyLoadImagesModule
+    LazyLoadImagesModule,
+    TransferHttpCacheModule
   ],
   providers: [DataService],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-}
+export class AppModule {}

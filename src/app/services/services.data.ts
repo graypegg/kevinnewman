@@ -1,9 +1,8 @@
 import { Title } from '@angular/platform-browser';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Rx';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable ,  BehaviorSubject, Subject } from 'rxjs';
+import {map} from 'rxjs/operators'; // outdated import path
 import 'rxjs/Rx';
 import { Project } from './../interfaces/common';
 import { environment } from '../../environments/environment';
@@ -38,12 +37,12 @@ export class DataService {
     }
 
     getProject = (id: Number): Observable<Project> => {
-        return this.project.map(data => data.filter((project) => project.id === id.toString())[0]);
+        return this.project.pipe(map(data => data.filter((project) => project.id === id.toString())[0]));
     }
 
     // Not used. 
     getNextPreviousProject = (project): Observable<Project[]> => {
-        return this.project.map(data => {
+        return this.project.pipe(map(data => {
             let projects = [];
             if (data) {
                 let index = data.indexOf(project);
@@ -51,7 +50,7 @@ export class DataService {
                 projects.push(data[1 + index]);
                 return projects;
             }
-        });
+        }));
     }
 
     getAllProjects = () => {

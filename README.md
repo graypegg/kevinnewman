@@ -1,10 +1,12 @@
 # Kevin Newman Personal Website
 
-`ng serve` to run.
+`ng serve` to run
 
 `ng serve --prod` to test production settings locally
 
-`ng build --prod` to build.
+`ng build --prod` to build
+
+`npm run build:server` to build angular universal
 
 `ng generate *`  to [build](https://github.com/angular/angular-cli/wiki/generate)
 

@@ -1,7 +1,9 @@
+
+import {map} from 'rxjs/operators'; // outdated import path
 import { TruncatePipe } from './../pipes/truncate';
 import { Project } from './../interfaces/common';
 import { Observable } from 'rxjs/Rx';
-import 'rxjs/add/operator/filter';
+
 import { DataService } from './../services/services.data';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -128,13 +130,13 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.dataService.setTitle('Home');
-    this.projects = this.dataService.project.map(project =>
+    this.projects = this.dataService.project.pipe(map(project =>
       project.filter(item => {
         if (item.promote === 'True') {
           return item;
         }
       })
-    );
+    ));
   }
   
 
